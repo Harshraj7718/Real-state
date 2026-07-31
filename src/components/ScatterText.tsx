@@ -32,7 +32,7 @@ export default function ScatterText({
   start = "top 85%",
   stagger = 0.04,
   delay = 0,
-  scatter = 70,
+  scatter = 40,
 }: ScatterTextProps) {
   const ref = useRef<HTMLElement | null>(null);
 

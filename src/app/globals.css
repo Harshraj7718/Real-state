@@ -144,6 +144,15 @@
     -webkit-text-stroke: 1px currentColor;
     color: transparent;
   }
+  .animate-spin-slow {
+    animation: spin-slow 2.4s linear infinite;
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 ::selection {

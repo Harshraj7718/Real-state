@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${display.variable} ${body.variable} ${accent.variable} antialiased`}
+      className={`${display.variable} ${body.variable} ${accent.variable} overflow-x-hidden antialiased`}
     >
       <body className="bg-black text-white font-body overflow-x-hidden">
         <SmoothScroll>{children}</SmoothScroll>

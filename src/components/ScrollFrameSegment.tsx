@@ -6,10 +6,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MapPin, Ruler, Building2, Sun, Trees, ShieldCheck, Wifi, Compass } from "lucide-react";
 import { frameSrc } from "@/lib/frames";
 import ScatterText from "@/components/ScatterText";
+import LoadingHash from "@/components/LoadingHash";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const EAGER_COUNT = 30;
+const MIN_LOADING_MS = 1400;
 
 const ICONS = {
   mapPin: MapPin,
@@ -53,6 +55,7 @@ export default function ScrollFrameSegment({
   overlay,
 }: ScrollFrameSegmentProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const badgesRef = useRef<HTMLDivElement>(null);
@@ -124,10 +127,16 @@ export default function ScrollFrameSegment({
     }
 
     (async () => {
+      const loadStart = performance.now();
       const eagerEnd = Math.min(startFrame + EAGER_COUNT, endFrame);
       for (let i = startFrame; i <= eagerEnd; i++) {
         if (cancelled) return;
         await loadFrame(i);
+      }
+      if (cancelled) return;
+      const elapsed = performance.now() - loadStart;
+      if (elapsed < MIN_LOADING_MS) {
+        await new Promise((resolve) => setTimeout(resolve, MIN_LOADING_MS - elapsed));
       }
       if (cancelled) return;
       setReady(true);
@@ -156,6 +165,8 @@ export default function ScrollFrameSegment({
       start: "top top",
       end: "bottom bottom",
       scrub: 0.4,
+      pin: pinRef.current,
+      pinSpacing: false,
       onUpdate: (self) => {
         const frame = Math.min(
           endFrame,
@@ -219,15 +230,13 @@ export default function ScrollFrameSegment({
       className="relative w-full bg-black"
       style={{ height: `${heightVh}vh` }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div ref={pinRef} className="h-screen w-full overflow-hidden">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
         <div className="absolute inset-0 bg-black/35" />
 
         {!ready && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
-            <span className="font-display text-2xl tracking-[0.4em] text-white/50 animate-pulse">
-              HASH
-            </span>
+            <LoadingHash className="text-white/60" />
           </div>
         )}
 
@@ -248,19 +257,20 @@ export default function ScrollFrameSegment({
               text="Welcome to"
               scrollTrigger={false}
               splitType="chars"
-              className="relative font-accent text-2xl text-white/70 italic sm:text-3xl"
+              className="relative z-10 mb-2 font-accent text-2xl text-white/70 italic sm:mb-4 sm:text-3xl"
               stagger={0.03}
               delay={0.05}
+              scatter={40}
             />
             <ScatterText
               as="h1"
               text="HASH"
               scrollTrigger={false}
               splitType="chars"
-              className="relative font-display text-[32vw] leading-[0.75] tracking-tight text-white sm:text-[24vw]"
+              className="relative flex w-full items-baseline justify-between font-display text-[30vw] leading-[0.8] text-white sm:text-[22vw]"
               stagger={0.06}
               delay={0.35}
-              scatter={110}
+              scatter={45}
             />
             <ScatterText
               as="p"
@@ -270,6 +280,7 @@ export default function ScrollFrameSegment({
               className="relative mt-6 font-accent text-3xl tracking-wide text-white italic sm:text-5xl"
               stagger={0.08}
               delay={1.15}
+              scatter={45}
             />
             <ScatterText
               as="p"
@@ -279,6 +290,7 @@ export default function ScrollFrameSegment({
               className="relative mt-8 max-w-xl font-body text-sm text-white/60 sm:text-base"
               stagger={0.015}
               delay={1.6}
+              scatter={30}
             />
             <div className="absolute bottom-6 flex flex-col items-center gap-3 text-white/50 sm:bottom-10">
               <span className="font-body text-xs tracking-[0.35em]">SCROLL</span>
